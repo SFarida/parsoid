@@ -2074,6 +2074,79 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		// Handle stored 2.0 content that we can't get rid of
+
+		it('should serialize this 2.0.0 content using selser', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
+				original: {
+					title: 'Doesnotexist',
+					revid: 6789,  // Necessary for selser
+					wikitext: {
+						body: "[[File:Selser was used.oga]]",
+					},
+					'data-parsoid': {
+						body: {
+							"ids": {
+								"mwAA": { "dsr": [0,47,0,0] },
+								"mwAQ": { "dsr": [0,45,0,0] },
+								"mwAg": { "optList": [], "dsr": [0,45,null,null] },
+								"mwAw": {},
+								"mwBA": { "a": { "height": "32", "width": "220", "resource": "./File:Mozart_Symphony_36_KV_425_Linz_4.oga" }, "sa": { "resource": "File:Selser was not used.oga" } },
+								"mwBQ": {},
+								"mwBg": {}
+							}
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('[[File:Selser was used.oga]]'))
+			.end(done);
+		});
+
+		it('should serialize this 2.0.0 content without using selser', function(done) {
+			request(api)
+			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
+			.send({
+				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
+				original: {
+					title: 'Doesnotexist',
+					wikitext: {
+						body: "[[File:Selser was used.oga]]",
+					},
+					'data-parsoid': {
+						body: {
+							"ids": {
+								"mwAA": { "dsr": [0,47,0,0] },
+								"mwAQ": { "dsr": [0,45,0,0] },
+								"mwAg": { "optList": [], "dsr": [0,45,null,null] },
+								"mwAw": {},
+								"mwBA": { "a": { "height": "32", "width": "220", "resource": "./File:Mozart_Symphony_36_KV_425_Linz_4.oga" }, "sa": { "resource": "File:Selser was not used.oga" } },
+								"mwBQ": {},
+								"mwBg": {}
+							}
+						},
+					},
+					html: {
+						headers: {
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"',
+						},
+						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.0.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio" id="mwAg"><span id="mwAw"><audio controls="" preload="none" height="32" width="220" resource="./File:Mozart_Symphony_36_KV_425_Linz_4.oga" id="mwBA"><source src="https://upload.wikimedia.org/wikipedia/commons/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga" type=\'audio/ogg; codecs="vorbis"\' data-title="Original Ogg file (251 kbps)" data-shorttitle="Ogg source" id="mwBQ"/><source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/c/ca/Mozart_Symphony_36_KV_425_Linz_4.oga/Mozart_Symphony_36_KV_425_Linz_4.oga.mp3" type="audio/mpeg" data-title="MP3" data-shorttitle="MP3" id="mwBg"/></audio></span></figure-inline></p></body></html>',
+					},
+				},
+			})
+			.expect(validWikitextResponse('[[File:Selser was not used.oga]]'))
+			.end(done);
+		});
+
 	}); // end html2wt
 
 	describe('pb2pb', function() {
